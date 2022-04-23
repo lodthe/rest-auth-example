@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: rest_auth_example
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    ports:
+      - '50005:5432'
+    restart: always
+
+  rabbitmq:
+    image: 'bitnami/rabbitmq:3.9.14'
+    environment:
+      RABBITMQ_USERNAME: user
+      RABBITMQ_PASSWORD: 123456
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - 'rabbitmq-data:/bitnami'
+
+  server:
+    image: 'lodthe/rest-auth-example-server'
+    env_file: envfiles/.env.server
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+
+  worker:
+    image: 'lodthe/rest-auth-example-worker'
+    env_file: envfiles/.env.worker
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
