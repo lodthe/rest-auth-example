@@ -31,8 +31,10 @@ func NewRouter(authService *auth.Service, userRepo muser.Repository, taskRepo st
 		MaxAge:           300,
 	}))
 
+	authHandler := newAuthHandler(authService, userRepo)
 	r.Route("/api", func(r chi.Router) {
-		newAuthHandler(authService, userRepo).handle(r)
+		authHandler.handle(r)
+		newUsersHandler(userRepo).handle(r.With(authHandler.middleware))
 	})
 
 	return r

@@ -29,6 +29,52 @@ func (h *authHandler) handle(r chi.Router) {
 	r.Post("/auth/issue-access-token", h.issueAccessToken)
 }
 
+func (h *authHandler) middleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		token, ok := h.fetchToken(w, r)
+		if !ok {
+			return
+		}
+		if token.Type != auth.TypeAccessToken {
+			writeError(w, "token type must be ACCESS_TOKEN", http.StatusUnauthorized)
+			return
+		}
+
+		user, err := h.userRepo.Get(token.UserID)
+		if err != nil {
+			zlog.Error().Err(err).Str("token_id", token.ID.String()).Msg("failed to fetch user from token")
+			writeError(w, "internal error", http.StatusInternalServerError)
+
+			return
+		}
+
+		next.ServeHTTP(w, r.WithContext(putUserIntoContext(r.Context(), user)))
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func (h *authHandler) fetchToken(w http.ResponseWriter, r *http.Request) (token *auth.Token, ok bool) {
+	header := r.Header.Get("Authorization")
+	token, err := h.auth.FetchToken(strings.TrimPrefix(header, "Bearer "))
+	if err != nil {
+		if errors.Is(err, auth.ErrUnauthorized) || errors.Is(err, auth.ErrInvalidToken) {
+			writeError(w, "invalid token", http.StatusUnauthorized)
+		} else {
+			zlog.Error().Err(err).Msg("token fetch failed")
+			writeError(w, "internal error", http.StatusUnauthorized)
+		}
+
+		return nil, false
+	}
+	if token.IsExpired() {
+		writeError(w, "token has expired", http.StatusUnauthorized)
+		return nil, false
+	}
+
+	return token, true
+}
+
 type RegisterInput struct {
 	Username string  `json:"username"`
 	Avatar   *string `json:"avatar"`
@@ -93,20 +139,12 @@ type IssueAccessToken struct {
 }
 
 func (h *authHandler) issueAccessToken(w http.ResponseWriter, r *http.Request) {
-	header := r.Header.Get("Authorization")
-	refreshToken, err := h.auth.FetchToken(strings.TrimPrefix(header, "Bearer "))
-	if err != nil {
-		if errors.Is(err, auth.ErrUnauthorized) || errors.Is(err, auth.ErrInvalidToken) {
-			writeError(w, "invalid token", http.StatusBadRequest)
-		} else {
-			zlog.Error().Err(err).Msg("token fetch failed")
-			writeError(w, "internal error", http.StatusInternalServerError)
-		}
-
+	refreshToken, ok := h.fetchToken(w, r)
+	if !ok {
 		return
 	}
-	if refreshToken.IsExpired() {
-		writeError(w, "token has expired", http.StatusBadRequest)
+	if refreshToken.Type != auth.TypeRefreshToken {
+		writeError(w, "token type must be REFRESH_TOKEN", http.StatusUnauthorized)
 		return
 	}
 
