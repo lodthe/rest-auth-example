@@ -32,6 +32,10 @@ func writeResult(w http.ResponseWriter, result interface{}) {
 }
 
 func writeResponse(w http.ResponseWriter, resp *Response) {
+	if resp.Error != nil {
+		w.WriteHeader(resp.Error.Code)
+	}
+
 	err := json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		log.Printf("failed to encode response: %v\nresponse:\n%v\n\n", err, resp)

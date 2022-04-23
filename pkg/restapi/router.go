@@ -7,12 +7,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/lodthe/rest-auth-example/internal/auth"
 	"github.com/lodthe/rest-auth-example/internal/muser"
 	"github.com/lodthe/rest-auth-example/internal/statstask"
 	"github.com/lodthe/rest-auth-example/internal/taskqueue"
 )
 
-func NewRouter(userRepo muser.Repository, taskRepo statstask.Repository, producer *taskqueue.Producer, timeout time.Duration) http.Handler {
+func NewRouter(authService *auth.Service, userRepo muser.Repository, taskRepo statstask.Repository, producer *taskqueue.Producer, timeout time.Duration) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -31,7 +32,7 @@ func NewRouter(userRepo muser.Repository, taskRepo statstask.Repository, produce
 	}))
 
 	r.Route("/api", func(r chi.Router) {
-		newUsersHandler(userRepo).handle(r)
+		newAuthHandler(authService, userRepo).handle(r)
 	})
 
 	return r

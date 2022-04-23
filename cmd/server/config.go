@@ -25,6 +25,9 @@ type RESTServer struct {
 	Address string `env:"SERVER_ADDRESS" envDefault:"0.0.0.0:9000"`
 
 	Timeout time.Duration `env:"SERVER_TIMEOUT" envDefault:"10s"`
+
+	JWTSecret      string        `env:"JWT_SECRET,required" envDefault:"JWT_SECRET"`
+	AccessTokenTTL time.Duration `env:"ACCESS_TOKEN_TTL" envDefault:"1h"`
 }
 
 type AMQP struct {

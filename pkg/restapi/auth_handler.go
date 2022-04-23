@@ -5,27 +5,30 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/lodthe/rest-auth-example/internal/auth"
 	"github.com/lodthe/rest-auth-example/internal/muser"
 	zlog "github.com/rs/zerolog/log"
 )
 
-type usersHandler struct {
+type authHandler struct {
+	auth     *auth.Service
 	userRepo muser.Repository
 }
 
-func newUsersHandler(userRepo muser.Repository) *usersHandler {
-	return &usersHandler{
+func newAuthHandler(authService *auth.Service, userRepo muser.Repository) *authHandler {
+	return &authHandler{
+		auth:     authService,
 		userRepo: userRepo,
 	}
 }
 
-func (h *usersHandler) handle(r chi.Router) {
-	r.Post("/users/register", h.register)
+func (h *authHandler) handle(r chi.Router) {
+	r.Post("/auth/register", h.register)
 }
 
 type RegisterInput struct {
 	Username string  `json:"username"`
-	Avatar   *string `json:"*avatar"`
+	Avatar   *string `json:"avatar"`
 	Sex      string  `json:"sex"`
 	Email    string  `json:"email"`
 }
@@ -34,7 +37,7 @@ type RegisterOutput struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (h *usersHandler) register(w http.ResponseWriter, r *http.Request) {
+func (h *authHandler) register(w http.ResponseWriter, r *http.Request) {
 	var input RegisterInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -69,7 +72,15 @@ func (h *usersHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, token, err := h.auth.IssueRefreshToken(user.ID)
+	if err != nil {
+		zlog.Error().Err(err).Interface("user", user).Msg("failed to issue a new refresh token")
+		writeError(w, "internal error", http.StatusInternalServerError)
+
+		return
+	}
+
 	writeResult(w, RegisterOutput{
-		RefreshToken: "NOT IMPLEMENTED",
+		RefreshToken: token,
 	})
 }

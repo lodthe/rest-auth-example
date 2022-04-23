@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/lodthe/rest-auth-example/internal/auth"
 	"github.com/lodthe/rest-auth-example/internal/muser"
 	"github.com/lodthe/rest-auth-example/internal/statstask"
 	"github.com/lodthe/rest-auth-example/internal/taskqueue"
@@ -49,7 +50,10 @@ func main() {
 	userRepo := muser.NewRepository(db)
 	producer := taskqueue.NewProducer(publisher, conf.AMQP.ExchangeName, conf.AMQP.RoutingKey)
 
-	router := restapi.NewRouter(userRepo, taskRepo, producer, conf.RESTServer.Timeout)
+	tokenRepo := auth.NewRepository(db)
+	authService := auth.NewService(auth.DefaultSigningMethod, conf.RESTServer.JWTSecret, conf.RESTServer.AccessTokenTTL, tokenRepo)
+
+	router := restapi.NewRouter(authService, userRepo, taskRepo, producer, conf.RESTServer.Timeout)
 
 	zlog.Info().Str("address", conf.RESTServer.Address).Msg("starting the server...")
 
