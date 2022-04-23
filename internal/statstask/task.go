@@ -17,11 +17,27 @@ const (
 	StatusDone
 )
 
+func (s Status) String() string {
+	switch s {
+	case StatusPending:
+		return "PENDING"
+
+	case StatusProcessing:
+		return "PROCESSING"
+
+	case StatusDone:
+		return "DONE"
+
+	default:
+		return "UNKNOWN"
+	}
+}
+
 type Task struct {
 	ID        uuid.UUID `db:"id"`
 	CreatedAt time.Time `db:"created_at"`
 
-	UserID uuid.UUID
+	UserID uuid.UUID `db:"user_id"`
 
 	Status Status `db:"status"`
 

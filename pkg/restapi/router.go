@@ -35,6 +35,7 @@ func NewRouter(authService *auth.Service, userRepo muser.Repository, taskRepo st
 	r.Route("/api", func(r chi.Router) {
 		authHandler.handle(r)
 		newUsersHandler(userRepo).handle(r.With(authHandler.middleware))
+		newStatsHandler(taskRepo, userRepo, producer).handle(r.With(authHandler.middleware))
 	})
 
 	return r
