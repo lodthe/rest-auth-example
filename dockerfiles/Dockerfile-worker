@@ -31,7 +31,7 @@ WORKDIR /opt
 COPY --from=builder /opt/bin/worker ./
 
 # Add required static files.
-#COPY assets assets
+COPY assets assets
 
 # Run the application.
 ENTRYPOINT ["./worker"]

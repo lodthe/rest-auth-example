@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"lodthe\",\n    \"email\": \"emailemail\",\n    \"sex\": \"ffewfewe\"\n}",
+					"raw": "{\n    \"username\": \"random_user\",\n    \"email\": \"wowowow.gmail@gmail.com\",\n    \"sex\": \"male\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -40,7 +40,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImE3ZGMxMjVkLThhYjgtNGZkNC04MTE3LTIzODdkMjEzZGI0MyIsInR5cGUiOiJSRUZSRVNIX1RPS0VOIiwianRpIjoiMDU4ZmMwNjItMjU2MS00M2UxLTg4NzUtMTdjOTg0YTMzYzIwIiwiaWF0IjoxNjUwNzM3MjcyfQ.cNAj9xxNv0RFGcG3qDOfrs8dpAFCngyhH8UqvOwkUwk",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGNiODFiZjUtNDUyMC00ODYxLTg1ZDItZWM3Y2ViNzQ0MTE1IiwidHlwZSI6IlJFRlJFU0hfVE9LRU4iLCJqdGkiOiJjYTlhZmQxOC03NjI5LTQyNGItOGY5MS1hYzNmM2Q5MWQ1OTgiLCJpYXQiOjE2NTA3OTY4OTF9.dzP-oKSvVFCOOn72U8xcsXFODl981s7WZ--IxeWFcwU",
 							"type": "string"
 						}
 					]
@@ -117,7 +117,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{API_URL}}/users?usernames=test1,lodthe",
+					"raw": "{{API_URL}}/users?usernames=random_user,xXx__WINNER__xXx",
 					"host": [
 						"{{API_URL}}"
 					],
@@ -127,7 +127,7 @@
 					"query": [
 						{
 							"key": "usernames",
-							"value": "test1,lodthe"
+							"value": "random_user,xXx__WINNER__xXx"
 						}
 					]
 				}
@@ -140,13 +140,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{API_URL}}/stats/xXx_MAFIOZI_xXx",
+					"raw": "{{API_URL}}/stats/xXx__WINNER__xXx",
 					"host": [
 						"{{API_URL}}"
 					],
 					"path": [
 						"stats",
-						"xXx_MAFIOZI_xXx"
+						"xXx__WINNER__xXx"
 					]
 				}
 			},
@@ -158,14 +158,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{API_URL}}/stats/tasks/d90c4db4-e9b6-4b9d-bf53-5df7def59079",
+					"raw": "{{API_URL}}/stats/tasks/179c089a-827e-4436-a251-843131baa1e0",
 					"host": [
 						"{{API_URL}}"
 					],
 					"path": [
 						"stats",
 						"tasks",
-						"d90c4db4-e9b6-4b9d-bf53-5df7def59079"
+						"179c089a-827e-4436-a251-843131baa1e0"
 					]
 				}
 			},
@@ -177,7 +177,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYTdkYzEyNWQtOGFiOC00ZmQ0LTgxMTctMjM4N2QyMTNkYjQzIiwidHlwZSI6IkFDQ0VTU19UT0tFTiIsImV4cCI6MTY1MDc5NTE4NiwianRpIjoiYzNiMmMyYjUtNWRjMy00OTUxLTkyMTctOTMxZGY3N2Q3NjdhIiwiaWF0IjoxNjUwNzkxNTg2fQ.40ZN4CVbGZRGMFMUlPRwn64v2gLEY6e7kM3ocstswIk",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGNiODFiZjUtNDUyMC00ODYxLTg1ZDItZWM3Y2ViNzQ0MTE1IiwidHlwZSI6IkFDQ0VTU19UT0tFTiIsImV4cCI6MTY1MDgwNDEwMSwianRpIjoiNjZmNmNjZGEtZjdiZi00MWU3LWJiMWQtNDJlN2UyOWIzYmQwIiwiaWF0IjoxNjUwNzk2OTAxfQ.nQPamXDatQENDZdUOvgIaKAbvdb14iphb3YsTBs5enI",
 				"type": "string"
 			}
 		]
@@ -205,7 +205,7 @@
 	"variable": [
 		{
 			"key": "API_URL",
-			"value": "https://soa.lodthe.me:9005/api",
+			"value": "http://soa.lodthe.me:9005/api",
 			"type": "string"
 		}
 	]
