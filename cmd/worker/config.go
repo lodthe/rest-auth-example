@@ -10,6 +10,7 @@ import (
 type Config struct {
 	DB   DB
 	AMQP AMQP
+	S3   S3
 }
 
 type DB struct {
@@ -25,6 +26,11 @@ type AMQP struct {
 
 	QueueName  string `env:"AMQP_QUEUE_NAME" envDefault:"rest_auth_example_tasks"`
 	RoutingKey string `env:"AMQP_ROUTING_KEY" envDefault:"stats_task"`
+}
+
+type S3 struct {
+	Region string `env:"S3_REGION,required"`
+	Bucket string `env:"S3_BUCKET,required"`
 }
 
 func ReadConfig() Config {

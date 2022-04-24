@@ -1,10 +1,13 @@
 package statstask
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/johnfercher/maroto/pkg/color"
 	"github.com/lodthe/rest-auth-example/internal/muser"
@@ -17,14 +20,22 @@ import (
 )
 
 type Worker struct {
+	ctx context.Context
+
 	userRepo muser.Repository
 	taskRepo Repository
+
+	s3Client *s3.Client
+	bucket   *string
 }
 
-func NewWorker(taskRepo Repository, userRepo muser.Repository) *Worker {
+func NewWorker(ctx context.Context, taskRepo Repository, userRepo muser.Repository, s3client *s3.Client, bucket string) *Worker {
 	return &Worker{
+		ctx:      ctx,
 		taskRepo: taskRepo,
 		userRepo: userRepo,
+		s3Client: s3client,
+		bucket:   &bucket,
 	}
 }
 
@@ -48,7 +59,7 @@ func (w *Worker) HandleTask(taskID uuid.UUID) error {
 		return errors.Wrap(err, "failed to update status")
 	}
 
-	documentURL, err := w.createDocument(task.UserID)
+	documentURL, err := w.createDocument(taskID, task.UserID)
 	if err != nil {
 		zlog.Error().Err(err).Str("id", taskID.String()).Msg("failed to create stats document")
 	}
@@ -74,7 +85,7 @@ func (w *Worker) HandleTask(taskID uuid.UUID) error {
 	return nil
 }
 
-func (w *Worker) createDocument(userID uuid.UUID) (string, error) {
+func (w *Worker) createDocument(taskID uuid.UUID, userID uuid.UUID) (string, error) {
 	user, err := w.userRepo.Get(userID)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to load user")
@@ -215,13 +226,34 @@ func (w *Worker) createDocument(userID uuid.UUID) (string, error) {
 			HeaderContentSpace: 1,
 			Line:               false,
 		})
-
+	})
+	m.Row(10, func() {
+		m.Text(fmt.Sprintf("Generated at %s", time.Now().Format(time.RFC3339)), props.Text{
+			Size:  8,
+			Style: consts.Italic,
+			Align: consts.Left,
+		})
 	})
 
-	err = m.OutputFileAndClose("certificate.pdf")
+	file, err := m.Output()
 	if err != nil {
-		return "", errors.Wrap(err, "failed to save pdf")
+		return "", errors.Wrap(err, "failed to get output file body")
 	}
 
-	return "saved", nil
+	return w.uploadDocument(taskID, file)
+}
+
+func (w *Worker) uploadDocument(taskID uuid.UUID, body bytes.Buffer) (string, error) {
+	objectKey := fmt.Sprintf("stats-%s.pdf", taskID)
+
+	_, err := w.s3Client.PutObject(w.ctx, &s3.PutObjectInput{
+		Bucket: w.bucket,
+		Key:    &objectKey,
+		Body:   bytes.NewReader(body.Bytes()),
+	})
+	if err != nil {
+		return "", errors.Wrap(err, "s3 upload failed")
+	}
+
+	return fmt.Sprintf("https://storage.yandexcloud.net/%s/%s", *w.bucket, objectKey), nil
 }
