@@ -9,6 +9,8 @@ import (
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/lodthe/rest-auth-example/internal/muser"
+	"github.com/lodthe/rest-auth-example/internal/statstask"
 	"github.com/lodthe/rest-auth-example/internal/taskqueue"
 	"github.com/rs/zerolog"
 	zlog "github.com/rs/zerolog/log"
@@ -40,10 +42,14 @@ func main() {
 	}
 	defer rabbitConsumer.Close()
 
+	taskRepo := statstask.NewRepository(db)
+	userRepo := muser.NewRepository(db)
+	worker := statstask.NewWorker(taskRepo, userRepo)
+
 	consumer := taskqueue.NewConsumer(rabbitConsumer, conf.AMQP.QueueName, conf.AMQP.RoutingKey)
 
 	go func() {
-		err := consumer.StartConsuming(nil)
+		err := consumer.StartConsuming(worker.HandleTask)
 		if err != nil {
 			zlog.Fatal().Err(err).Msg("consumer failed")
 		}
