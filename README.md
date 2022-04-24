@@ -11,7 +11,7 @@ This section describes how to use the API. Also, there is a [postman collection]
 
 Register a new user.
 
-```json
+```
 POST /api/auth/register
 -> {
     "username": "random_user",
@@ -31,7 +31,7 @@ POST /api/auth/register
 
 Provide `Authorization: Bearer <refresh token>` header to issue a new access-token:
 
-```json
+```
 POST /api/auth/issue-access-token
 Authorization: Bearer eyJhbG...refresh
 
@@ -46,7 +46,7 @@ All the following requests should be sent with an issued access-token.
 
 ## Get your profile
 
-```json
+```
 GET /api/users/myself
 Authorization: Bearer eyJhbG...access
 
@@ -62,7 +62,7 @@ Authorization: Bearer eyJhbG...access
 
 ## Update your profile
 
-```json
+```
 PUT /api/users/myself
 Authorization: Bearer eyJhbG...access
 -> {
@@ -85,7 +85,7 @@ Authorization: Bearer eyJhbG...access
 
 ## Get profiles by usernames
 
-```json
+```
 GET /api/users?usernames=random_user,xXx__WINNER__xXx
 Authorization: Bearer eyJhbG...access
 
@@ -115,7 +115,7 @@ Create a task to get a users' statistics asynchronously.
 
 The server will send the request to RabbitMQ. A worker consumes requests and uploads generated stats-documents to YandexCloud S3.
 
-```json
+```
 POST /api/stats/xXx__WINNER__xXx
 Authorization: Bearer eyJhbG...access
         
@@ -128,7 +128,7 @@ Authorization: Bearer eyJhbG...access
 
 ## Check stats-task status
 
-```json
+```
 GET /api/stats/tasks/179c089a-827e-4436-a251-843131baa1e0
 Authorization: Bearer eyJhbG...access
         
