@@ -1,1 +1,3 @@
 bin/
+envfiles/.env.worker
+envfiles/.env.server
